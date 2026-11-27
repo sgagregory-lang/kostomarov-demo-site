@@ -14,6 +14,8 @@
     .map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(o[k]); }).join("&"); }
   var P = params();
   var byId = {}; C.PRODUCTS.forEach(function (p) { byId[p.id] = p; });
+  Object.keys(C.COMPAT_PARTS || {}).forEach(function (pn) { var q = C.COMPAT_PARTS[pn];
+    byId["part:" + pn] = { id: "part:" + pn, virtual: true, sku: pn, title: q.title, condition: "tbd", category: "network", vendor: "Cisco", availability: "on_order", specs: [], price_amount: null, is_price_published: false }; });
   var ss = { get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
   var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 
@@ -44,19 +46,34 @@
   function avail(k) { var a = C.AVAILABILITY[k]; return '<span class="avail avail-' + esc(k) + '"><i></i>' + esc(a ? a.label : k) + "</span>"; }
   function rfqHref(p) { return "rfq.html?" + qstr({ product_id: p.id, sku: p.sku, title: p.title, condition: cond(p.condition).label }); }
   function prodHref(p) { return "product.html?id=" + encodeURIComponent(p.id); }
+  function money(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00A0"); }
+  function dateRu() { var d = String(C.PRICE_DATE || "").split("-"); return d.length === 3 ? d[2] + "." + d[1] + "." + d[0] : ""; }
+  function hasPrice(p) { return !!(p.is_price_published && p.price_amount != null); }
+  function priceHtml(p, big) {
+    if (!hasPrice(p)) return '<span class="price price-none">Цена — в КП</span>';
+    return '<span class="price' + (big ? " price-lg" : "") + '" data-price="' + p.price_amount + '" data-price-source="' + esc(p.price_source) + '"><span class="pr-from">от</span> <b>' + money(p.price_amount) + ' ₽</b> <span class="pr-vat">с НДС</span></span>' +
+      '<span class="pr-date">на ' + dateRu() + '</span><span class="demo-price" data-demo-price>Демо-цена для макета, не оферта</span>';
+  }
+  function norm(x) { return String(x == null ? "" : x).toLowerCase().replace(/[=#()\-\s_\/.,]/g, ""); }
+  function aliasHit(p, q) { if (!q || !p.aliases) return ""; var nq = norm(q); if (!nq) return "";
+    if (norm(p.sku).indexOf(nq) >= 0) return "";
+    for (var i = 0; i < p.aliases.length; i++) { var na = norm(p.aliases[i]); if (na.indexOf(nq) >= 0 || (nq.length > 6 && nq.indexOf(na) === 0 && na.length > 6)) return p.aliases[i]; }
+    return ""; }
+  var CUR_Q = "";
+  function aliasNote(p) { var a = aliasHit(p, CUR_Q); return a ? '<span class="alias-hit mono" data-alias-hit>найдено по партномеру: ' + esc(a) + "</span>" : ""; }
   var DEMO_TAG = '<span class="demo-tag" data-demo-tag>Демо-пример · наличие и состояние для макета</span>';
   function copyBtn(p) { return '<button type="button" class="copy-btn" data-copy="' + esc(p.sku) + '" title="Скопировать SKU" aria-label="Скопировать SKU ' + esc(p.sku) + '"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5"/></svg></button>'; }
   function addBtn(p, cls) { return '<button type="button" class="btn btn-add ' + (cls || "") + '" data-add-bom="' + esc(p.id) + '">+ В ТЗ</button>'; }
   function ttx(p, n) { return p.specs.slice(0, n).map(function (s) { return '<li><span class="k">' + esc(s[0]) + '</span><span class="v">' + esc(s[1]) + "</span></li>"; }).join(""); }
   var R = {
     table: function (list) {
-      return '<div class="tbl-wrap"><table class="ptable"><thead><tr><th class="c-pos">Позиция · SKU</th><th>Модель и ключевые ТТХ</th><th class="c-cond">Состояние</th><th class="c-av">Наличие</th><th class="c-price">Цена</th><th class="c-act"><span class="sr">Действия</span></th></tr></thead><tbody>' +
+      return '<div class="tbl-wrap"><table class="ptable"><thead><tr><th class="c-pos">Позиция · SKU</th><th>Модель и ключевые ТТХ</th><th class="c-cond">Состояние</th><th class="c-av">Наличие</th><th class="c-price">Цена от, с НДС</th><th class="c-act"><span class="sr">Действия</span></th></tr></thead><tbody>' +
         list.map(function (p) {
           return '<tr data-product-row="' + esc(p.id) + '" data-cond="' + esc(p.condition) + '" data-cat="' + esc(p.category) + '" data-vendor="' + esc(p.vendor) + '" data-av="' + esc(p.availability) + '">' +
             '<td class="c-pos"><a class="thumb" href="' + prodHref(p) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(p.thumb) + '" alt=""></a>' +
-            '<div class="sku-line"><a class="sku mono" href="' + prodHref(p) + '">' + esc(p.sku) + "</a>" + copyBtn(p) + "</div>" + DEMO_TAG + "</td>" +
-            '<td class="c-model"><a class="m-title" href="' + prodHref(p) + '">' + esc(p.title) + '</a><ul class="ttx">' + ttx(p, 6) + "</ul></td>" +
-            '<td class="c-cond">' + badge(p.condition) + "</td><td class=\"c-av\">" + avail(p.availability) + '</td><td class="c-price"><span class="price">По запросу</span></td>' +
+            '<div class="sku-line"><a class="sku mono" href="' + prodHref(p) + '">' + esc(p.sku) + "</a>" + copyBtn(p) + "</div>" + aliasNote(p) + "</td>" +
+            '<td class="c-model"><a class="m-title" href="' + prodHref(p) + '">' + esc(p.title) + '</a><ul class="ttx">' + ttx(p, 3) + "</ul></td>" +
+            '<td class="c-cond">' + badge(p.condition) + "</td><td class=\"c-av\">" + avail(p.availability) + '</td><td class="c-price">' + priceHtml(p) + '</td>' +
             '<td class="c-act"><a class="btn btn-primary btn-sm" data-rfq href="' + rfqHref(p) + '">Запросить КП</a>' + addBtn(p, "btn-sm") + "</td></tr>";
         }).join("") + "</tbody></table></div>";
     },
@@ -65,8 +82,8 @@
         return '<article class="pcard" data-product-row="' + esc(p.id) + '" data-cond="' + esc(p.condition) + '" data-cat="' + esc(p.category) + '" data-vendor="' + esc(p.vendor) + '" data-av="' + esc(p.availability) + '">' +
           '<a class="pcard-img" href="' + prodHref(p) + '"><img src="' + esc(p.thumb) + '" alt="' + esc(p.title) + '"></a><div class="pcard-body">' +
           '<div class="pcard-meta">' + badge(p.condition) + avail(p.availability) + "</div>" +
-          '<a class="pcard-title" href="' + prodHref(p) + '">' + esc(p.title) + '</a><div class="sku-line"><span class="sku mono">' + esc(p.sku) + "</span>" + copyBtn(p) + "</div>" + DEMO_TAG +
-          '<ul class="ttx ttx-cards">' + ttx(p, 4) + '</ul><div class="pcard-foot"><span class="price">По запросу</span><span class="pcard-act"><a class="btn btn-primary btn-sm" data-rfq href="' + rfqHref(p) + '">Запросить КП</a>' + addBtn(p, "btn-sm") + "</span></div></div></article>";
+          '<a class="pcard-title" href="' + prodHref(p) + '">' + esc(p.title) + '</a><div class="sku-line"><span class="sku mono">' + esc(p.sku) + "</span>" + copyBtn(p) + "</div>" + aliasNote(p) +
+          '<ul class="ttx ttx-cards">' + ttx(p, 4) + '</ul><div class="pcard-foot"><span class="pcard-price">' + priceHtml(p) + '</span><span class="pcard-act"><a class="btn btn-primary btn-sm" data-rfq href="' + rfqHref(p) + '">Запросить КП</a>' + addBtn(p, "btn-sm") + "</span></div></div></article>";
       }).join("") + "</div>";
     }
   };
@@ -82,14 +99,17 @@
       if (skip !== "vendor" && st.vendor && p.vendor !== st.vendor) return false;
       if (skip !== "condition" && st.condition && p.condition !== st.condition) return false;
       if (skip !== "availability" && st.availability && p.availability !== st.availability) return false;
-      if (st.q) { var hay = (p.sku + " " + p.title + " " + p.vendor + " " + p.specs.map(function (s) { return s[1]; }).join(" ")).toLowerCase().replace(/[-\s]/g, "");
-        var ok = st.q.toLowerCase().split(/\s+/).filter(Boolean).every(function (t) { return hay.indexOf(t.replace(/-/g, "")) >= 0; }); if (!ok) return false; }
+      if (st.q) { var hay = norm(p.sku + " " + p.title + " " + p.vendor + " " + p.specs.map(function (s) { return s[1]; }).join(" ") + " " + (p.aliases || []).join(" "));
+        var ok = st.q.toLowerCase().split(/\s+/).filter(Boolean).every(function (t) { var nt = norm(t); if (!nt) return true; if (hay.indexOf(nt) >= 0) return true;
+          var m = /^(.{8,})(pi|pe|rf)$/.exec(nt); return !!(m && hay.indexOf(m[1]) >= 0); }); if (!ok) return false; }
       return true;
     }
     function sorted(list) {
       var l = list.slice();
       if (st.sort === "stock") l.sort(function (a, b) { return (a.availability === "in_stock" ? 0 : 1) - (b.availability === "in_stock" ? 0 : 1) || a.n - b.n; });
       else if (st.sort === "vendor") l.sort(function (a, b) { return a.vendor.localeCompare(b.vendor, "ru") || a.n - b.n; });
+      else if (st.sort === "price_asc" || st.sort === "price_desc") { var dir = st.sort === "price_asc" ? 1 : -1;
+        l.sort(function (a, b) { var x = hasPrice(a) ? a.price_amount : null, y = hasPrice(b) ? b.price_amount : null; if (x == null && y == null) return a.n - b.n; if (x == null) return 1; if (y == null) return -1; return (x - y) * dir || a.n - b.n; }); }
       else if (st.sort === "form") l.sort(function (a, b) { return (C.FORM_ORDER[a.form] || 9) - (C.FORM_ORDER[b.form] || 9) || a.n - b.n; });
       else l.sort(function (a, b) { return a.n - b.n; });
       return l;
@@ -106,6 +126,7 @@
       var h = $("[data-cat-h1]"); if (h && root.hasAttribute("data-main-catalog")) h.textContent = st.category ? C.CATEGORIES[st.category].h1 : h.getAttribute("data-default");
     }
     function render() {
+      CUR_Q = st.q;
       var list = sorted(C.PRODUCTS.filter(function (p) { return match(p); }));
       if (cnt) cnt.innerHTML = list.length ? 'Найдено: <b>' + list.length + "</b> из " + C.PRODUCTS.length + " · демо-каталог" : "Ничего не найдено";
       res.setAttribute("data-shown", String(list.length));
@@ -177,23 +198,63 @@
   window.__bom = BOM;
 
   /* Карточка */
+  var AIRFLOW = function (code) {
+    var pi = code === "PI";
+    var arr = pi ? '<path d="M20 38h46" /><path d="M60 32l8 6-8 6" /><path d="M188 38h30"/><path d="M212 32l8 6-8 6"/>' : '<path d="M220 38h-46" /><path d="M180 32l-8 6 8 6" /><path d="M64 38H20"/><path d="M26 32l-8 6 8 6"/>';
+    return '<svg class="airflow" viewBox="0 0 240 76" role="img" aria-label="Схема обдува ' + code + '"><rect x="68" y="14" width="120" height="48" rx="3" class="af-box"/><text x="128" y="42" text-anchor="middle" class="af-t">шасси 1RU</text><text x="14" y="14" class="af-s">порты</text><text x="226" y="14" text-anchor="end" class="af-s">тыл</text><g class="af-a ' + (pi ? "af-cold" : "af-hot") + '">' + arr + '</g></svg>';
+  };
+  function extHtml(p) {
+    if (!p.ext || !p.ext.length) return "";
+    return '<div class="box" data-ext><h2 class="box-h">Расширенные ТТХ' + (p.datasheet ? ' <a class="box-link" href="' + esc(p.datasheet) + '" target="_blank" rel="noopener">datasheet вендора ↗</a>' : "") + '</h2><div class="ext-grid">' +
+      p.ext.map(function (g) { return '<div class="ext-g"><h3>' + esc(g.h) + '</h3><table class="spec-table"><tbody>' + g.rows.map(function (r) { return "<tr><th>" + esc(r[0]) + "</th><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</tbody></table></div>"; }).join("") + "</div>" +
+      (p.datasheet ? '<p class="src">Источник ТТХ: <a href="' + esc(p.datasheet) + '" target="_blank" rel="noopener">' + esc(p.datasheet_title || "документация вендора") + "</a></p>" : "") + "</div>";
+  }
+  function variantsHtml(p) {
+    if (!p.variants) return "";
+    return '<div class="box" data-variants><h2 class="box-h">Варианты PE / PI — направление обдува</h2><div class="var-grid">' + p.variants.map(function (v) {
+      return '<div class="var" data-variant="' + esc(v.code) + '"><div class="var-h"><b class="mono">' + esc(v.code) + "</b> " + esc(v.name) + "</div>" + AIRFLOW(v.code) + "<p>" + esc(v.text) + "</p></div>"; }).join("") +
+      '</div><p class="src">Модули питания и вентиляторы в шасси должны быть одного направления. Вариант фиксируется в КП по партномеру (…-PI / …-PE). Партномер с «=» — запасная часть (spare).</p></div>';
+  }
+  function compatHtml(p) {
+    var rows = p.compat || []; if (!rows.length) return "";
+    var groups = {}, order = []; rows.forEach(function (c) { if (!groups[c.group]) { groups[c.group] = []; order.push(c.group); } groups[c.group].push(c); });
+    return order.map(function (g) {
+      return '<div class="cp-g" data-compat-group="' + esc(g) + '"><h3>' + esc(g) + '</h3><ul class="cp-list">' + groups[g].map(function (c) {
+        var q = c.ref ? byId[c.ref] : byId["part:" + c.pn]; if (!q) return "";
+        var link = c.ref ? '<a class="sku mono" href="' + prodHref(q) + '">' + esc(q.sku) + "</a>" : '<span class="sku mono">' + esc(q.sku) + "</span>";
+        return '<li data-compat-item="' + esc(q.id) + '"><span class="cp-pn">' + link + '</span><span class="cp-t">' + esc(q.title) + (c.note ? ' <small>' + esc(c.note) + "</small>" : "") + "</span>" +
+          '<span class="cp-p">' + (c.ref ? priceHtml(q) : '<span class="price price-none">Цена — в КП</span>') + '</span><span class="cp-a">' + addBtn(q, "btn-sm") + "</span></li>"; }).join("") + "</ul></div>"; }).join("");
+  }
   function initProduct(root) {
     var p = byId[P.id];
-    if (!p) { root.innerHTML = '<section class="p-sec"><div class="wrap"><div class="empty"><b>Позиция не найдена</b><p>Проверьте ссылку или откройте каталог.</p><a class="btn btn-primary" href="catalog.html">Открыть каталог</a></div></div></section>'; return; }
+    if (!p || p.virtual) { root.innerHTML = '<section class="p-sec"><div class="wrap"><div class="empty"><b>Позиция не найдена</b><p>Проверьте ссылку или откройте каталог.</p><a class="btn btn-primary" href="catalog.html">Открыть каталог</a></div></div></section>'; return; }
     var c = cond(p.condition), cat = C.CATEGORIES[p.category];
-    document.title = p.h1 + " — демо-сайт v3";
+    document.title = p.h1 + " — демо-сайт v4";
     var set = function (k, html) { $$('[data-p="' + k + '"]', root).forEach(function (el) { el.innerHTML = html; }); };
     set("h1", esc(p.type) + " " + esc(p.brand) + " " + esc(p.model) + ' <span class="h1-sku mono">(' + esc(p.sku) + ")</span>");
     set("badge", badge(p.condition)); set("avail", avail(p.availability)); set("sku", esc(p.sku));
     set("cat", '<a href="catalog.html?category=' + p.category + '">' + esc(cat.label) + "</a>");
-    set("img", '<img src="' + esc(p.img) + '" alt="Технический чертёж: ' + esc(p.title) + '">');
-    set("specs", p.specs.concat([["Партномер (SKU)", p.sku], ["Состояние", c.label], ["Наличие", C.AVAILABILITY[p.availability].long]]).slice(0, 12).map(function (s) {
-      return "<tr><th>" + esc(s[0]) + "</th><td" + (/Партномер/.test(s[0]) ? ' class="mono"' : "") + ">" + esc(s[1]) + "</td></tr>"; }).join(""));
+    set("img", '<img src="' + esc(p.img) + '" alt="Схематичная иллюстрация: ' + esc(p.title) + '">');
+    set("key", p.specs.slice(0, 4).map(function (x) { return "<div><dt>" + esc(x[0]) + "</dt><dd>" + esc(x[1]) + "</dd></div>"; }).join("") +
+      "<div><dt>Состояние</dt><dd>" + esc(c.label) + "</dd></div><div><dt>Наличие</dt><dd>" + esc(C.AVAILABILITY[p.availability].label) + "</dd></div>");
+    var src = p.price_source === "market" ? '<span class="pr-srcline" data-price-src="market">Рыночная цена (market): ' + esc(p.price_basis) + (p.price_ref ? ' · <a href="' + esc(p.price_ref) + '" target="_blank" rel="noopener">источник ↗</a>' : "") + "</span>"
+      : '<span class="pr-srcline" data-price-src="estimate">Оценка (estimate): ' + esc(p.price_basis) + (p.price_ref ? ' · <a href="' + esc(p.price_ref) + '" target="_blank" rel="noopener">ориентир ↗</a>' : "") + "</span>";
+    set("price", priceHtml(p, true) + (hasPrice(p) ? src : ""));
+    var links = ['<a href="#specs">Все ТТХ</a>']; if (p.compat && p.compat.length) links.push('<a href="#compat">Совместимые компоненты</a>');
+    if (p.datasheet) links.push('<a href="' + esc(p.datasheet) + '" target="_blank" rel="noopener" data-datasheet>Datasheet вендора ↗</a>');
+    set("links", links.join(" · "));
+    var rows = p.specs.slice();
+    if (p.aliases && p.aliases.length) rows.push(["Другие партномера / варианты", p.aliases.slice(0, 8).join(" · ")]);
+    rows = rows.concat([["Партномер (SKU)", p.sku], ["Состояние", c.label], ["Наличие", C.AVAILABILITY[p.availability].long]]);
+    set("specs", rows.map(function (s) { return "<tr><th>" + esc(s[0]) + "</th><td" + (/Партномер/.test(s[0]) ? ' class="mono"' : "") + ">" + esc(s[1]) + "</td></tr>"; }).join(""));
+    set("ext", extHtml(p)); set("variants", variantsHtml(p));
+    var ch = compatHtml(p); set("compat", ch); $$('[data-p="compat-box"]', root).forEach(function (el) { el.hidden = !ch; });
+    set("includes", p.includes ? '<p><b>Комплектация:</b></p><ul class="checks">' + p.includes.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "");
     set("cond-def", "<b>" + esc(c.label) + ".</b> " + esc(c.def));
     set("cond-note", c.note ? esc(c.note) : "Гарантийные условия фиксируются в коммерческом предложении и договоре поставки.");
-    set("delivery", p.availability === "in_stock" ? "Отгрузка со склада в Москве после оплаты/согласования; доставка транспортными компаниями по РФ." : "Срок поставки рассчитывается индивидуально по запросу.");
+    set("delivery", p.availability === "in_stock" ? "отгрузка после согласования заказа; доставка транспортными компаниями по РФ, срок — в КП." : "срок поставки рассчитывается индивидуально по запросу.");
     $$('[data-p="rfq-link"]', root).forEach(function (a) { a.setAttribute("href", rfqHref(p)); });
-    $$('[data-p="add"]', root).forEach(function (b) { b.setAttribute("data-add-bom", p.id); b.setAttribute("data-label", "+ Добавить в спецификацию (ТЗ)"); });
+    $$('[data-p="add"]', root).forEach(function (b) { b.setAttribute("data-add-bom", p.id); b.setAttribute("data-label", "+ В ТЗ"); });
     $$('[data-p="copy"]', root).forEach(function (b) { b.setAttribute("data-copy", p.sku); });
     var sim = C.PRODUCTS.filter(function (x) { return x.id !== p.id && x.category === p.category; });
     sim = sim.concat(C.PRODUCTS.filter(function (x) { return x.id !== p.id && x.category !== p.category && (x.vendor === p.vendor); })).slice(0, 4);

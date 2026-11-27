@@ -1,6 +1,7 @@
-/* Демо-каталог прототипа v3 (тестовое наполнение: реальные модели и партномера по открытым источникам, см. sources.md). ВНИМАНИЕ: статусы наличия и состояния — демонстрационные (для макета),
-   без реальных остатков и реквизитов. Финальные SKU и наличие заполняются из прайса заказчика.
-   Коммерческие поля заложены в модель, но на витрину не выводятся: price_amount = null, is_price_published = false. */
+/* Демо-каталог прототипа v4 (тестовое наполнение: реальные модели и партномера по открытым источникам, см. sources.md).
+   ВНИМАНИЕ: статусы наличия и состояния — демонстрационные (для макета), без реальных остатков.
+   Цены: демо-цены «от … ₽ с НДС на 27.11.2026», не оферта. price_source = "market" (нижняя найденная рыночная цена того же партномера, ссылка в price_ref)
+   или "estimate" (оценка; основание в price_basis). Финальные цены и наличие заполняются из прайса заказчика. */
 window.CATALOG = (function () {
   var CONDITIONS = {
     "new": { label: "Новое", def: "Оборудование, не бывшее в эксплуатации, в заводской комплектации.", note: "" },
@@ -11,6 +12,7 @@ window.CATALOG = (function () {
     "used": { label: "Б/у", def: "Бывшее в эксплуатации, проверено на базовую работоспособность, состояние описывается явно.",
       note: "Гарантия производителя не обещается; состояние описывается явно." }
   };
+  CONDITIONS["tbd"] = { label: "Состояние — в КП", def: "Состояние и комплектация уточняются в коммерческом предложении.", note: "" };
   var CONDITION_ORDER = ["new", "factory", "seller", "used"];
   var AVAILABILITY = {
     "in_stock": { label: "В наличии", long: "В наличии (демо-статус для макета)" },
@@ -24,8 +26,9 @@ window.CATALOG = (function () {
   };
   var CATEGORY_ORDER = ["servers", "storage", "network", "components"];
   var FORM_ORDER = { "1U": 1, "2U": 2, "Модуль": 3 };
+  var PRICE_DATE = "2026-11-27";
   function P(o) {
-    o.price_amount = null; o.currency = null; o.vat_rate = null; o.stock_qty = null; o.is_price_published = false;
+    o.price_amount = null; o.currency = "RUB"; o.vat_rate = 22; o.vat_included = true; o.price_date = PRICE_DATE; o.price_source = null; o.stock_qty = null; o.is_price_published = true;
     o.demo = true;
     o.title = o.type + " " + o.brand + " " + o.model;
     o.h1 = o.title + " (" + o.sku + ")";
@@ -178,8 +181,974 @@ window.CATALOG = (function () {
       sku: "E810-XXVDA2", condition: "factory", availability: "on_order", form: "Модуль", img: I + "component-psu-kit.svg#dimm", thumb: I + "component-psu-kit.svg#dimm",
       specs: [["Порты", "2× SFP28, 25/10 GbE"], ["Интерфейс", "PCIe 4.0 x8"], ["Функции", "RDMA (iWARP / RoCEv2), ADQ, DDP, DPDK, IEEE 1588 PTP"], ["Документ состояния", "Документ вендора о восстановлении — обязателен"]] })
   ];
+  var EXT = {
+  "dell-r650": {
+  "img": "assets/img/l-server-1u.svg",
+  "thumb": "assets/img/l-server-1u.svg",
+  "price_amount": 390000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: поколение до R750/R760, сегмент Seller Refurbished",
+  "price_ref": "",
+  "datasheet": "https://i.dell.com/sites/csdocuments/Product_Docs/en/poweredge-r650-spec-sheet.pdf"
+  },
+  "dell-r750": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 572000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,85 от рыночной цены нового R750 12LFF («от 673 000 ₽», dell-servers.ru) — Factory Refurbished",
+  "price_ref": "https://dell-servers.ru/product/dell-poweredge-r750-12lff/",
+  "datasheet": "https://www.delltechnologies.com/asset/en-us/products/servers/technical-support/dell-emc-poweredge-r750-spec-sheet.pdf"
+  },
+  "dell-r660": {
+  "img": "assets/img/l-server-1u.svg",
+  "thumb": "assets/img/l-server-1u.svg",
+  "price_amount": 520000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: ≈ 0,93 от рыночной цены нового R760 (562 000 ₽)",
+  "price_ref": "",
+  "datasheet": "https://i.dell.com/sites/csdocuments/Product_Docs/en/poweredge-r660-spec-sheet.pdf"
+  },
+  "dell-r760": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 562000,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового Dell PowerEdge R760 («от»): ServerTech",
+  "price_ref": "https://servertech.ru/",
+  "datasheet": "https://www.delltechnologies.com/asset/en-us/products/servers/technical-support/poweredge-r760-spec-sheet.pdf"
+  },
+  "dell-r740xd": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 255000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Б/у, предыдущее поколение 2U",
+  "price_ref": "",
+  "datasheet": "https://www.dell.com/support/manuals/en-us/poweredge-r740xd/per740xd_techspecs_pub/chassis-weight?guid=guid-5ee8b904-f8e7-46dc-a1c0-3342ae8a1d83&lang=en-us"
+  },
+  "hpe-dl360-gen11": {
+  "img": "assets/img/l-server-1u.svg",
+  "thumb": "assets/img/l-server-1u.svg",
+  "price_amount": 646905,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового P51930-B21 с НДС: ServerMall",
+  "price_ref": "https://servermall.ru/catalog/servers/hpe-proliant-dl360-gen11-p51930-b21/",
+  "datasheet": "https://www.hpe.com/us/en/collaterals/collateral.a50004306enw.html",
+  "aliases": [
+  "P51930-421"
+  ],
+  "compat": [
+  {
+  "group": "БП",
+  "ref": "hpe-psu-800w",
+  "note": "Flex Slot, пара одной модели"
+  },
+  {
+  "group": "БП",
+  "ref": "hpe-psu-1600w",
+  "note": "Проверяется по партномеру платформы"
+  },
+  {
+  "group": "Память",
+  "ref": "samsung-ddr5-32g",
+  "note": "DDR5 RDIMM"
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "intel-e810-xxvda2",
+  "note": "PCIe, 2×SFP28"
+  }
+  ]
+  },
+  "hpe-dl380-gen11": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 536694,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового P52560-421: EDDP",
+  "price_ref": "https://www.eddp.ru/servera-i-skhd/hpe-dl380/server-hpe-proliant-dl380-gen11-p52560-421/",
+  "datasheet": "https://www.hpe.com/psnow/downloadDoc/HPE%20ProLiant%20DL380%20Gen11%20QuickSpecs-a50004307enw.pdf?id=a50004307enw.PDF",
+  "compat": [
+  {
+  "group": "БП",
+  "ref": "hpe-psu-800w",
+  "note": "Flex Slot, пара одной модели"
+  },
+  {
+  "group": "БП",
+  "ref": "hpe-psu-1600w",
+  "note": "Проверяется по партномеру платформы"
+  },
+  {
+  "group": "Память",
+  "ref": "samsung-ddr5-32g",
+  "note": "DDR5 RDIMM"
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "intel-e810-xxvda2",
+  "note": "PCIe, 2×SFP28"
+  }
+  ]
+  },
+  "hpe-dl380-gen10": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 260874,
+  "price_source": "estimate",
+  "price_basis": "Оценка по рыночному ориентиру: CTO 868703-B21 от 260 874 ₽ (proliant-hp.ru); цена зависит от конфигурации",
+  "price_ref": "https://www.proliant-hp.ru/catalog/rack-servery_hp_proliant/rack-servery_hp_proliant_dl380_gen10/868703-b21",
+  "compat": [
+  {
+  "group": "БП",
+  "ref": "hpe-psu-800w",
+  "note": "Flex Slot, пара одной модели"
+  },
+  {
+  "group": "Память",
+  "ref": "samsung-ddr4-32g",
+  "note": "DDR4 RDIMM, совместимость подтверждается"
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "nvidia-mcx512a-acat",
+  "note": "PCIe, 2×SFP28"
+  }
+  ]
+  },
+  "lenovo-sr630-v2": {
+  "img": "assets/img/l-server-1u.svg",
+  "thumb": "assets/img/l-server-1u.svg",
+  "price_amount": 245000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Б/у, 1U Xeon 3-го поколения",
+  "price_ref": "",
+  "datasheet": "https://lenovopress.lenovo.com/lp1391-thinksystem-sr630-v2-server-xeon-sp-gen3"
+  },
+  "lenovo-sr650-v2": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 340000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Seller Refurbished, 2U Xeon 3-го поколения",
+  "price_ref": "",
+  "datasheet": "https://lenovopress.lenovo.com/lp1392-thinksystem-sr650-v2-server-xeon-sp-gen3"
+  },
+  "lenovo-sr650-v3": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 720000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: ориентир Lenovo SR650 (7X06A0FFNA) от 639 450 ₽ + поколение V3",
+  "price_ref": "",
+  "datasheet": "https://lenovopress.lenovo.com/lp1601-thinksystem-sr650-v3-server"
+  },
+  "xfusion-1288h-v6": {
+  "img": "assets/img/l-server-1u.svg",
+  "thumb": "assets/img/l-server-1u.svg",
+  "price_amount": 310000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Seller Refurbished, 1U",
+  "price_ref": "",
+  "datasheet": "https://www.xfusion.com/en/product/rack-server/fusionserver-1288h-v6"
+  },
+  "xfusion-2288h-v6": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 520000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: новый 2U, ориентир по аналогам Gen11/V6",
+  "price_ref": "",
+  "datasheet": "https://www.xfusion.com/en/product/rack-server/fusionserver-2288h-v6"
+  },
+  "xfusion-2288h-v7": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 640000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: новый 2U нового поколения",
+  "price_ref": "",
+  "datasheet": "https://www.xfusion.com/wp-content/uploads/2025/04/FusionServer-2288H-V7-Rack-Server-Datasheet.pdf"
+  },
+  "smc-sys-221h-tnr": {
+  "img": "assets/img/l-server-2u.svg",
+  "thumb": "assets/img/l-server-2u.svg",
+  "price_amount": 1130611,
+  "price_source": "estimate",
+  "price_basis": "Оценка по последней известной цене базовой конфигурации (KNS); позиция под заказ",
+  "price_ref": "https://www.kns.ru/product/server-supermicro-sys-221h-tnr/",
+  "datasheet": "https://www.supermicro.com/en/products/system/hyper/2u/sys-221h-tnr"
+  },
+  "smc-sys-121h-tnr": {
+  "img": "assets/img/l-server-1u.svg",
+  "thumb": "assets/img/l-server-1u.svg",
+  "price_amount": 690000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Seller Refurbished, 1U Hyper",
+  "price_ref": "",
+  "datasheet": "https://www.supermicro.com/en/products/system/hyper/1u/sys-121h-tnr"
+  },
+  "dell-powerstore-1200t": {
+  "img": "assets/img/l-storage.svg",
+  "thumb": "assets/img/l-storage.svg",
+  "price_amount": 3900000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: СХД среднего класса, зависит от конфигурации",
+  "price_ref": "",
+  "datasheet": "https://www.dell.com/en-us/shop/ipovw/powerstore-1200t"
+  },
+  "dell-me5024": {
+  "img": "assets/img/l-storage.svg",
+  "thumb": "assets/img/l-storage.svg",
+  "price_amount": 1150000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Seller Refurbished, 2U 24×SFF",
+  "price_ref": "",
+  "datasheet": "https://www.delltechnologies.com/asset/en-ca/products/storage/technical-support/dell-powervault-me5-ss.pdf"
+  },
+  "dell-me5012": {
+  "img": "assets/img/l-storage.svg",
+  "thumb": "assets/img/l-storage.svg",
+  "price_amount": 520000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Б/у, 2U 12×LFF",
+  "price_ref": "",
+  "datasheet": "https://www.delltechnologies.com/asset/en-ca/products/storage/technical-support/dell-powervault-me5-ss.pdf"
+  },
+  "hpe-msa-2060-fc": {
+  "img": "assets/img/l-storage.svg",
+  "thumb": "assets/img/l-storage.svg",
+  "price_amount": 780000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Factory Refurbished; рынок нового — от 332 544 до 1 489 130 ₽ (большой разброс), hpeserver.ru и др.",
+  "price_ref": "https://hpeserver.ru/r0q74a",
+  "datasheet": "https://www.hpe.com/us/en/collaterals/collateral.a00094629enw.html",
+  "aliases": [
+  "R0Q74B"
+  ]
+  },
+  "huawei-dorado-3000-v6": {
+  "img": "assets/img/l-storage.svg",
+  "thumb": "assets/img/l-storage.svg",
+  "price_amount": 4200000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: All-Flash СХД, зависит от конфигурации",
+  "price_ref": "",
+  "datasheet": "https://e.huawei.com/en/products/storage/all-flash-storage/dorado-3000-v6"
+  },
+  "huawei-dorado-5000-v6": {
+  "img": "assets/img/l-storage.svg",
+  "thumb": "assets/img/l-storage.svg",
+  "price_amount": 6800000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: All-Flash СХД, зависит от конфигурации",
+  "price_ref": "",
+  "datasheet": "https://e.huawei.com/en/products/storage/all-flash-storage/dorado-5000-6000-v6"
+  },
+  "cisco-n9k-93180yc-fx3": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 638229,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового N9K-C93180YC-FX3(PI) с НДС: ИНФОТЕХ (i-teh.com)",
+  "price_ref": "https://i-teh.com/catalog/upravlyaemye/cisco_n9k_c93180yc_fx3_pi_kommutator/",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-744052.html",
+  "aliases": [
+  "N9K-C93180YC-FX3-PI",
+  "N9K-C93180YC-FX3-PE",
+  "N9K-C93180YC-FX3=",
+  "N9K-C93180YC-FX3(PI)",
+  "N93180YC-FX3",
+  "93180YC-FX3",
+  "NXA-PAC-650W-PI",
+  "NXA-PAC-650W-PE",
+  "NXA-PDC-930W-PI",
+  "NXA-PDC-930W-PE",
+  "N9K-PUV-1200W",
+  "NXA-FAN-35CFM-PI",
+  "NXA-FAN-35CFM-PE",
+  "NXK-ACC-KIT-1RU",
+  "NXK-ACC-KIT-2P"
+  ],
+  "compat": [
+  {
+  "group": "БП",
+  "pn": "NXA-PAC-650W-PI",
+  "title": "Блок питания Cisco Nexus 650 Вт AC, обдув port-side intake (PI)",
+  "note": "PI: БП + вентиляторы одного направления"
+  },
+  {
+  "group": "БП",
+  "pn": "NXA-PAC-650W-PE",
+  "title": "Блок питания Cisco Nexus 650 Вт AC, обдув port-side exhaust (PE)",
+  "note": "PE: БП + вентиляторы одного направления"
+  },
+  {
+  "group": "БП",
+  "pn": "NXA-PDC-930W-PI",
+  "title": "Блок питания Cisco Nexus 930 Вт DC, port-side intake (PI)",
+  "note": ""
+  },
+  {
+  "group": "БП",
+  "pn": "NXA-PDC-930W-PE",
+  "title": "Блок питания Cisco Nexus 930 Вт DC, port-side exhaust (PE)",
+  "note": ""
+  },
+  {
+  "group": "БП",
+  "pn": "N9K-PUV-1200W",
+  "title": "Блок питания Cisco N9300 1200 Вт универсальный (HVAC/HVDC, двунаправленный обдув)",
+  "note": ""
+  },
+  {
+  "group": "Вентиляторы",
+  "pn": "NXA-FAN-35CFM-PI",
+  "title": "Вентиляторный модуль Cisco Nexus 35 CFM, port-side intake (PI)",
+  "note": "Комплектуется по PI"
+  },
+  {
+  "group": "Вентиляторы",
+  "pn": "NXA-FAN-35CFM-PE",
+  "title": "Вентиляторный модуль Cisco Nexus 35 CFM, port-side exhaust (PE)",
+  "note": "Комплектуется по PE"
+  },
+  {
+  "group": "Рейки",
+  "pn": "NXK-ACC-KIT-1RU",
+  "title": "Комплект крепления Cisco Nexus, 4-стоечный (4-post), 1RU",
+  "note": ""
+  },
+  {
+  "group": "Рейки",
+  "pn": "NXK-ACC-KIT-2P",
+  "title": "Комплект крепления Cisco Nexus, 2-стоечный (2-post)",
+  "note": ""
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-sfp-10g-sr-s",
+  "note": "Порты SFP28 принимают SFP+ 10G"
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-sfp-25g-sr-s",
+  "note": "Требуется RS-FEC"
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-qsfp-100g-sr4-s",
+  "note": "Uplink-порты QSFP28"
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "qsfp28-100g-sr4-compat",
+  "note": "Совместимый модуль — подтверждается в КП"
+  }
+  ],
+  "datasheet_title": "Cisco N9300-FX3 Series Switches Data Sheet",
+  "ext": [
+  {
+  "h": "Производительность",
+  "rows": [
+  [
+  "Пропускная способность",
+  "3,6 Тбит/с, 1,2 Bpps"
+  ],
+  [
+  "Буфер системы",
+  "40 МБ"
+  ],
+  [
+  "Таблица MAC-адресов",
+  "до 512 000 записей"
+  ],
+  [
+  "IPv4 / IPv6",
+  "LPM и host до 1 792 000 / LPM IPv6 до 896 000"
+  ],
+  [
+  "VRF · ECMP",
+  "16 000 VRF · 128-way ECMP"
+  ],
+  [
+  "Мультикаст-маршруты",
+  "до 128 000"
+  ],
+  [
+  "VLAN",
+  "до 4096 (27 зарезервированы)"
+  ]
+  ]
+  },
+  {
+  "h": "Платформа и порты",
+  "rows": [
+  [
+  "Порты доступа",
+  "48× SFP28 (1/10/25G)"
+  ],
+  [
+  "Uplink",
+  "6× QSFP28 (40/100G)"
+  ],
+  [
+  "Процессор",
+  "4 ядра"
+  ],
+  [
+  "Память (ОЗУ)",
+  "16 ГБ по умолчанию, расширяется ещё на 16 ГБ"
+  ],
+  [
+  "Накопитель (SSD)",
+  "128 ГБ"
+  ],
+  [
+  "Управление",
+  "1× RJ-45 (mgmt), 1× USB, 1× RS-232 (консоль)"
+  ],
+  [
+  "Синхронизация",
+  "GPS 1PPS и 10 МГц (вход/выход), ToD (RJ-45), антенна ГНСС"
+  ],
+  [
+  "Безопасность",
+  "MACsec (IEEE 802.1ae) на всех портах"
+  ]
+  ]
+  },
+  {
+  "h": "Питание и охлаждение",
+  "rows": [
+  [
+  "Блоки питания",
+  "до 2 шт.: 650 Вт AC (PI/PE) · 930 Вт DC (PI/PE) · 1200 Вт HVAC/HVDC (двунаправленный)"
+  ],
+  [
+  "Потребление",
+  "типовое 325 Вт · максимальное 600 Вт"
+  ],
+  [
+  "Вход AC",
+  "100–240 В, 50–60 Гц"
+  ],
+  [
+  "Вентиляторы",
+  "4 модуля, 35 CFM (PI или PE)"
+  ],
+  [
+  "Направление обдува",
+  "Port-side intake (PI) или port-side exhaust (PE) — БП и вентиляторы одного направления"
+  ]
+  ]
+  },
+  {
+  "h": "Конструкция и условия",
+  "rows": [
+  [
+  "Форм-фактор",
+  "1RU, 4,4 × 43,9 × 49,6 см"
+  ],
+  [
+  "Масса шасси",
+  "9,52 кг (без БП и вентиляторов)"
+  ],
+  [
+  "Рабочая температура",
+  "0…40 °C, влажность 5–95 % без конденсата"
+  ],
+  [
+  "MTBF",
+  "303 190 ч"
+  ],
+  [
+  "ПО",
+  "NX-OS от 9.3.7 · ACI от 15.1.3"
+  ]
+  ]
+  }
+  ],
+  "variants": [
+  {
+  "code": "PI",
+  "name": "Port-side intake",
+  "text": "Холодный воздух забирается со стороны портов, горячий выходит сзади. Партномер варианта часто пишут как N9K-C93180YC-FX3-PI или (PI). Модули: NXA-PAC-650W-PI + NXA-FAN-35CFM-PI."
+  },
+  {
+  "code": "PE",
+  "name": "Port-side exhaust",
+  "text": "Порты на горячем проходе: воздух забирается сзади, выходит со стороны портов. Модули: NXA-PAC-650W-PE + NXA-FAN-35CFM-PE."
+  }
+  ],
+  "includes": [
+  "Шасси N9K-C93180YC-FX3",
+  "БП (до 2) и вентиляторные модули — по выбранному варианту PE/PI (в спецификации вендора это отдельные партномера)",
+  "Комплект креплений NXK-ACC-KIT-1RU и кабели питания — опционально, фиксируются в КП",
+  "Документация"
+  ],
+  "condition": "new",
+  "specs": [
+  [
+  "Форм-фактор",
+  "1RU"
+  ],
+  [
+  "Порты доступа",
+  "48× SFP28 (1/10/25GbE)"
+  ],
+  [
+  "Uplink",
+  "6× QSFP28 (40/100GbE)"
+  ],
+  [
+  "Пропускная способность",
+  "3,6 Тбит/с, 1,2 Bpps"
+  ],
+  [
+  "Буфер · MAC",
+  "40 МБ · до 512 000 MAC"
+  ],
+  [
+  "Роль",
+  "ToR / leaf в фабрике ЦОД"
+  ],
+  [
+  "Режимы ПО",
+  "NX-OS / ACI (зависит от лицензии)"
+  ]
+  ]
+  },
+  "cisco-n9k-9336c-fx2": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 535000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,70 от нижней рыночной цены нового (764 297 ₽, cbm.company) — Seller Refurbished",
+  "price_ref": "https://cbm.company/n9k-c9336c-fx2-kommutator-cisco-nexus-9300-series",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-742282.pdf",
+  "aliases": [
+  "N9K-C9336C-FX2=",
+  "9336C-FX2"
+  ],
+  "compat": [
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-qsfp-100g-sr4-s",
+  "note": "Порты QSFP28 40/100G"
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "qsfp28-100g-sr4-compat",
+  "note": "Совместимый модуль — подтверждается в КП"
+  }
+  ]
+  },
+  "cisco-c9300-48p": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 195600,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,85 от нижней рыночной цены нового (230 076 ₽, bouz.ru) — Factory Refurbished",
+  "price_ref": "https://bouz.ru/catalog/cisco_catalyst_9300/kommutator_cisco_catalyst_c9300_48p_e/",
+  "aliases": [
+  "C9300-48P-E="
+  ]
+  },
+  "cisco-c9200l-24t": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 70400,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,55 от нижней рыночной цены нового (128 070 ₽, Регард) — Б/у",
+  "price_ref": "https://www.regard.ru/reciept/39744/upravliaemye-kommutatory-svitci-cisco",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/switches/catalyst-9200-series-switches/nb-06-cat9200-ser-data-sheet-cte-en.html",
+  "aliases": [
+  "C9200L-24T-4G-E="
+  ]
+  },
+  "huawei-ce6881": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 269645,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового CE6881-48S6CQ-B (вариант с БП и вентиляторами) с НДС: Kvantech",
+  "price_ref": "https://kvan.tech/catalog/setevoe-oborudovanie-i-organizatsiya-setey/huawei/kommutatory-huawei/kommutator-huawei-ce6881-48s6cq-b/",
+  "datasheet": "https://e.huawei.com/en/documents/products/enterprise-network/03b4b17c83324b129def5b9bba4d29af",
+  "aliases": [
+  "CE6881-48S6CQ-B",
+  "02352QGG-004"
+  ],
+  "compat": [
+  {
+  "group": "Трансиверы",
+  "ref": "qsfp28-100g-sr4-compat",
+  "note": "Совместимость с кодировкой платформы подтверждается в КП"
+  }
+  ]
+  },
+  "huawei-ce6865": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 310000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: Seller Refurbished, 48×25G + 8×100G",
+  "price_ref": "",
+  "datasheet": "https://support.huawei.com/enterprise/en/doc/EDOC1100198646/3082bcde/ce6865-48s8cq-ei"
+  },
+  "huawei-ce8850": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 1650000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: новый 64×100G",
+  "price_ref": "",
+  "datasheet": "https://support.huawei.com/enterprise/en/doc/EDOC1100198646/6e958eba/ce8850-64cq-ei"
+  },
+  "nvidia-sn2700": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 239600,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,70 от нижней рыночной цены нового (342 300 ₽, t-bazar.ru) — Seller Refurbished",
+  "price_ref": "https://t-bazar.ru/catalog/setevoe-oborudovanie/kommutatory/kommutator-mellanox-msn2700-cs2f/",
+  "datasheet": "https://network.nvidia.com/sites/default/files/doc-2020/pb-sn2700.pdf",
+  "aliases": [
+  "920-9N101-00F7-0X4",
+  "SN2700"
+  ]
+  },
+  "arista-7050sx3": {
+  "img": "assets/img/l-switch.svg",
+  "thumb": "assets/img/l-switch.svg",
+  "price_amount": 321800,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,55 от рыночного ориентира 585 000 ₽ (DCS-7050SX3-48YC8-F, Телекомстартап) — Б/у",
+  "price_ref": "https://telecomstartup.ru/catalog/kommutatory/gigabit-ethernet/kommutator_arista_dcs_7050sx3_48yc8_f/",
+  "datasheet": "https://www.arista.com/assets/data/pdf/Datasheets/7050X3-Datasheet.pdf",
+  "aliases": [
+  "DCS-7050SX3-48YC8-F",
+  "DCS-7050SX3-48YC8#"
+  ]
+  },
+  "cisco-sfp-10g-sr-s": {
+  "img": "assets/img/l-parts.svg#qsfp",
+  "thumb": "assets/img/l-parts.svg#qsfp",
+  "price_amount": 4930,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового SFP-10G-SR-S= с НДС 22%: bouz.ru",
+  "price_ref": "https://bouz.ru/catalog/opticheskie_transivery_cisco/opticheskiy_transiver_cisco_sfp_10g_sr_s/",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/data_sheet_c78-455693.html",
+  "aliases": [
+  "SFP-10G-SR-S=",
+  "SFP-10G-SR"
+  ],
+  "compat": [
+  {
+  "group": "Платформы в каталоге",
+  "ref": "cisco-n9k-93180yc-fx3",
+  "note": "Порты SFP28 принимают SFP+"
+  }
+  ]
+  },
+  "cisco-sfp-25g-sr-s": {
+  "img": "assets/img/l-parts.svg#qsfp",
+  "thumb": "assets/img/l-parts.svg#qsfp",
+  "price_amount": 14414,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового SFP-25G-SR-S с НДС 22%: ИНФОТЕХ",
+  "price_ref": "https://i-teh.com/catalog/sfp_moduli/modul_opticheskiy_cisco_sfp_25g_sr_s/",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/datasheet-c78-736950.html",
+  "aliases": [
+  "SFP-25G-SR-S="
+  ],
+  "compat": [
+  {
+  "group": "Платформы в каталоге",
+  "ref": "cisco-n9k-93180yc-fx3",
+  "note": ""
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "intel-e810-xxvda2",
+  "note": "Порты SFP28"
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "nvidia-mcx512a-acat",
+  "note": "Порты SFP28"
+  }
+  ]
+  },
+  "cisco-qsfp-100g-sr4-s": {
+  "img": "assets/img/l-parts.svg#qsfp",
+  "thumb": "assets/img/l-parts.svg#qsfp",
+  "price_amount": 17100,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,85 от нижней рыночной цены нового (20 177 ₽, ИНФОТЕХ) — Factory Refurbished",
+  "price_ref": "https://i-teh.com/catalog/sfp_moduli/modul_opticheskiy_cisco_qsfp_100g_sr4_s/",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/datasheet-c78-736282.html",
+  "aliases": [
+  "QSFP-100G-SR4-S="
+  ],
+  "compat": [
+  {
+  "group": "Платформы в каталоге",
+  "ref": "cisco-n9k-93180yc-fx3",
+  "note": "Uplink QSFP28"
+  },
+  {
+  "group": "Платформы в каталоге",
+  "ref": "cisco-n9k-9336c-fx2",
+  "note": ""
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "nvidia-mcx623106an",
+  "note": "QSFP56/100G"
+  }
+  ]
+  },
+  "qsfp28-100g-sr4-compat": {
+  "img": "assets/img/l-parts.svg#qsfp",
+  "thumb": "assets/img/l-parts.svg#qsfp",
+  "price_amount": 6500,
+  "price_source": "estimate",
+  "price_basis": "Оценка: совместимый QSFP28 SR4 (сторонний производитель)",
+  "price_ref": "",
+  "datasheet": "https://www.cisco.com/c/en/us/products/collateral/interfaces-modules/transceiver-modules/datasheet-c78-736282.html",
+  "compat": [
+  {
+  "group": "Платформы в каталоге",
+  "ref": "cisco-n9k-9336c-fx2",
+  "note": "Подтверждается в КП"
+  },
+  {
+  "group": "Сетевые карты",
+  "ref": "nvidia-mcx623106an",
+  "note": "Подтверждается в КП"
+  }
+  ]
+  },
+  "hpe-psu-800w": {
+  "img": "assets/img/l-parts.svg#psu",
+  "thumb": "assets/img/l-parts.svg#psu",
+  "price_amount": 11360,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового 865414-B21: Apltech",
+  "price_ref": "https://www.apltech.ru/tovar/30375/hpe-800w-platinum-power-supply-865414-b21",
+  "datasheet": "https://www.hpe.com/us/en/collaterals/collateral.c04346217.html",
+  "aliases": [
+  "866730-001",
+  "865409-001",
+  "865412-201",
+  "865412-501",
+  "865412-101",
+  "865414-B21#ABB"
+  ],
+  "compat": [
+  {
+  "group": "Платформы в каталоге",
+  "ref": "hpe-dl360-gen11",
+  "note": ""
+  },
+  {
+  "group": "Платформы в каталоге",
+  "ref": "hpe-dl380-gen11",
+  "note": ""
+  },
+  {
+  "group": "Платформы в каталоге",
+  "ref": "hpe-dl380-gen10",
+  "note": "Совместимость подтверждается по партномеру платформы"
+  }
+  ],
+  "ext": [
+  {
+  "h": "Партномера",
+  "rows": [
+  [
+  "Основной",
+  "865414-B21"
+  ],
+  [
+  "Альтернативные spare-номера",
+  "866730-001 · 865409-001 · 865412-201 · 865412-501 · 865412-101 (по данным реселлеров; подтверждается по платформе)"
+  ]
+  ]
+  }
+  ]
+  },
+  "hpe-psu-1600w": {
+  "img": "assets/img/l-parts.svg#psu",
+  "thumb": "assets/img/l-parts.svg#psu",
+  "price_amount": 16200,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,70 от нижней рыночной цены нового (23 111 ₽, Kvantech) — Seller Refurbished",
+  "price_ref": "https://kvan.tech/catalog/komplektuyushchie/bloki-pitaniya/blok-pitaniya-hpe-1600w-830272-b21/",
+  "datasheet": "https://www.hpe.com/us/en/collaterals/collateral.c04346217.html",
+  "aliases": [
+  "830272-B21=",
+  "1600W Flex Slot"
+  ],
+  "compat": [
+  {
+  "group": "Платформы в каталоге",
+  "ref": "hpe-dl380-gen11",
+  "note": "Совместимость подтверждается по партномеру платформы"
+  },
+  {
+  "group": "Платформы в каталоге",
+  "ref": "hpe-dl380-gen10",
+  "note": "Совместимость подтверждается по партномеру платформы"
+  }
+  ]
+  },
+  "broadcom-9361-8i": {
+  "img": "assets/img/l-parts.svg#nic",
+  "thumb": "assets/img/l-parts.svg#nic",
+  "price_amount": 18600,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,55 от рыночного ориентира 33 770 ₽ (CompaREMA) — Б/у",
+  "price_ref": "https://comparema.ru/",
+  "datasheet": "https://docs.broadcom.com/doc/BC00-0478EN",
+  "aliases": [
+  "LSI00417",
+  "03-25420-11B",
+  "9361-8i"
+  ]
+  },
+  "broadcom-9560-8i": {
+  "img": "assets/img/l-parts.svg#nic",
+  "thumb": "assets/img/l-parts.svg#nic",
+  "price_amount": 83168,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового 05-50077-01 с НДС: PC Planet",
+  "price_ref": "https://www.pcplanet.ru/product/323951",
+  "datasheet": "https://www.broadcom.com/products/storage/raid-controllers/megaraid-9560-8i",
+  "aliases": [
+  "9560-8i"
+  ]
+  },
+  "seagate-exos-x18-18tb": {
+  "img": "assets/img/l-parts.svg#hdd",
+  "thumb": "assets/img/l-parts.svg#hdd",
+  "price_amount": 86090,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового ST18000NM000J (поштучно): price.ru, Цифрус",
+  "price_ref": "https://price.ru/zhestkie-diski/seagate-st18000nm000j/",
+  "datasheet": "https://www.seagate.com/www-content/datasheets/pdfs/exos-x18-DS2045-1-2007US-en_US.pdf"
+  },
+  "wd-ultrastar-hc550-18tb": {
+  "img": "assets/img/l-parts.svg#hdd",
+  "thumb": "assets/img/l-parts.svg#hdd",
+  "price_amount": 67100,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,70 от цены нового (95 880 ₽, Tehpos) — Seller Refurbished",
+  "price_ref": "https://tehpos.ru/moskva/wd-ultrastar-dc-hc550-18tb-wuh721818ale6l4.html",
+  "datasheet": "https://documents.westerndigital.com/content/dam/doc-library/en_us/assets/public/western-digital/product/data-center-drives/ultrastar-dc-hc500-series/data-sheet-ultrastar-dc-hc550.pdf"
+  },
+  "samsung-pm9a3-1t92": {
+  "img": "assets/img/l-parts.svg#ssd",
+  "thumb": "assets/img/l-parts.svg#ssd",
+  "price_amount": 146741,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового MZQL21T9HCJR-00A07 с НДС: Юникомп",
+  "price_ref": "https://unicomps.ru/product/ssd-nakopitel-servernyy-samsung-1-92-tb-vnutrenniy-ssd-2-5-u-2-chtenie-6800-mb-sek-zapis-4000-mb-sek-tlc-pm9a3-mzql21t9hcjr-00a07/"
+  },
+  "samsung-pm893-960g": {
+  "img": "assets/img/l-parts.svg#ssd",
+  "thumb": "assets/img/l-parts.svg#ssd",
+  "price_amount": 35500,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,55 от нижней рыночной цены нового (64 515 ₽, bouz.ru) — Б/у",
+  "price_ref": "https://bouz.ru/catalog/zhestkie_diski_ssd/nakopitel_ssd_samsung_pm893_960gb_mz7l3960hcjr_00a07/"
+  },
+  "samsung-ddr4-32g": {
+  "img": "assets/img/l-parts.svg#dimm",
+  "thumb": "assets/img/l-parts.svg#dimm",
+  "price_amount": 33000,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,70 от нижней рыночной цены нового (47 146 ₽, XCOM B2B) — Seller Refurbished",
+  "price_ref": "https://b2b.xcom.ru/catalog/servery_i_shd/komplektyyuschie/modyli_pamyati/"
+  },
+  "samsung-ddr5-32g": {
+  "img": "assets/img/l-parts.svg#dimm",
+  "thumb": "assets/img/l-parts.svg#dimm",
+  "price_amount": 161315,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового M321R4GA3BB6-CQK (под заказ): Навигатор",
+  "price_ref": "https://shop.nav-it.ru/catalogue/pamyat_3/samsung_ddr5_32gb_rdimm_4800mhz_2rx8_ecc_reg_1_1v_m321r4ga3bb6_cqk_1_year_oem/"
+  },
+  "nvidia-mcx512a-acat": {
+  "img": "assets/img/l-parts.svg#nic",
+  "thumb": "assets/img/l-parts.svg#nic",
+  "price_amount": 18500,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,70 от нижней рыночной цены нового (26 460 ₽, Kvantech) — Seller Refurbished",
+  "price_ref": "https://kvan.tech/catalog/komplektuyushchie/pci-moduli/setevye-adaptery/setevye-adaptery-nvidia/setevoy-adapter-nvidia-mcx512a-acat/",
+  "datasheet": "https://networking-docs.nvidia.com/connectx5enhw/specifications",
+  "compat": [
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-sfp-25g-sr-s",
+  "note": "Порты SFP28"
+  }
+  ]
+  },
+  "nvidia-mcx623106an": {
+  "img": "assets/img/l-parts.svg#nic",
+  "thumb": "assets/img/l-parts.svg#nic",
+  "price_amount": 82502,
+  "price_source": "market",
+  "price_basis": "Нижняя найденная цена нового MCX623106AN-CDAT: KNSneva",
+  "price_ref": "https://www.knsneva.ru/product/setevaya-karta-mellanox-mcx623106an-cdat/",
+  "datasheet": "https://networking-docs.nvidia.com/connectx6dxhw/specifications",
+  "compat": [
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-qsfp-100g-sr4-s",
+  "note": "Порты QSFP56 / 100G"
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "qsfp28-100g-sr4-compat",
+  "note": "Подтверждается в КП"
+  }
+  ]
+  },
+  "intel-e810-xxvda2": {
+  "img": "assets/img/l-parts.svg#nic",
+  "thumb": "assets/img/l-parts.svg#nic",
+  "price_amount": 15200,
+  "price_source": "estimate",
+  "price_basis": "Оценка: 0,85 от нижней рыночной цены нового (17 900 ₽, ServerFlow) — Factory Refurbished",
+  "price_ref": "https://serverflow.ru/catalog/komplektuyushchie/setevye-karty/intel-e810-xxvda2/",
+  "datasheet": "https://cdrdv2-public.intel.com/641674/Intel%20Ethernet%20Network%20Adapter%20E810-XXVDA2%20Product%20Brief.pdf",
+  "aliases": [
+  "E810XXVDA2G1P5",
+  "E810-XXVDA2G1P5"
+  ],
+  "compat": [
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-sfp-25g-sr-s",
+  "note": "Порты SFP28"
+  },
+  {
+  "group": "Трансиверы",
+  "ref": "cisco-sfp-10g-sr-s",
+  "note": "Скорость 10G"
+  }
+  ]
+  }
+  };
+    var COMPAT_PARTS = {"NXA-PAC-650W-PI": {"title": "Блок питания Cisco Nexus 650 Вт AC, обдув port-side intake (PI)", "group": "БП"}, "NXA-PAC-650W-PE": {"title": "Блок питания Cisco Nexus 650 Вт AC, обдув port-side exhaust (PE)", "group": "БП"}, "NXA-PDC-930W-PI": {"title": "Блок питания Cisco Nexus 930 Вт DC, port-side intake (PI)", "group": "БП"}, "NXA-PDC-930W-PE": {"title": "Блок питания Cisco Nexus 930 Вт DC, port-side exhaust (PE)", "group": "БП"}, "N9K-PUV-1200W": {"title": "Блок питания Cisco N9300 1200 Вт универсальный (HVAC/HVDC, двунаправленный обдув)", "group": "БП"}, "NXA-FAN-35CFM-PI": {"title": "Вентиляторный модуль Cisco Nexus 35 CFM, port-side intake (PI)", "group": "Вентиляторы"}, "NXA-FAN-35CFM-PE": {"title": "Вентиляторный модуль Cisco Nexus 35 CFM, port-side exhaust (PE)", "group": "Вентиляторы"}, "NXK-ACC-KIT-1RU": {"title": "Комплект крепления Cisco Nexus, 4-стоечный (4-post), 1RU", "group": "Рейки"}, "NXK-ACC-KIT-2P": {"title": "Комплект крепления Cisco Nexus, 2-стоечный (2-post)", "group": "Рейки"}};
+  
+  PRODUCTS.forEach(function (p) { var x = EXT[p.id]; if (x) Object.keys(x).forEach(function (k) { p[k] = x[k]; }); });
   var VENDORS = ["Dell", "HPE", "Lenovo", "Huawei", "xFusion", "Supermicro", "Cisco", "NVIDIA", "Arista", "Broadcom", "Seagate", "Western Digital", "Samsung", "Intel", "Совместимые"];
   return { CONDITIONS: CONDITIONS, CONDITION_ORDER: CONDITION_ORDER, AVAILABILITY: AVAILABILITY, CATEGORIES: CATEGORIES,
-    CATEGORY_ORDER: CATEGORY_ORDER, FORM_ORDER: FORM_ORDER, PRODUCTS: PRODUCTS, VENDORS: VENDORS,
+    CATEGORY_ORDER: CATEGORY_ORDER, FORM_ORDER: FORM_ORDER, PRODUCTS: PRODUCTS, VENDORS: VENDORS, COMPAT_PARTS: COMPAT_PARTS, PRICE_DATE: PRICE_DATE,
     DEMO_NOTE: "Демо-каталог: модели и партномера взяты из открытых источников, а наличие и состояние — демонстрационные значения для макета, без реальных остатков и реквизитов. Цены не публикуются. Финальные позиции и наличие заполняются из прайса заказчика." };
 })();
