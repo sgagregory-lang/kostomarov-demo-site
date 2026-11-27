@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Запрос КП — демо-сайт v3</title>
+<meta name="description" content="Запросить коммерческое предложение.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="pg-rfq">
+<a class="skip" href="#main">К содержанию</a>
+<div class="util-bar"><div class="wrap ub"><span class="ub-demo"><b>ДЕМО-САЙТ v3</b> · тестовый каталог: модели и партномера из открытых источников; наличие и состояние — демо-значения, без реальных остатков и реквизитов</span><span class="ub-facts"><span>Москва</span><span>Поставки по всей РФ</span><span>Только юрлица</span><span>Без розницы</span></span></div></div><header class="site-header"><div class="wrap hdr"><a class="logo" href="index.html"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="#38BDF8" stroke-width="1.6"/><rect x="10" y="10" width="12" height="3" rx=".6" fill="#38BDF8"/><rect x="10" y="14.5" width="12" height="3" rx=".6" fill="#0284C7"/><rect x="10" y="19" width="12" height="3" rx=".6" fill="#1E3A5F"/><circle cx="20.2" cy="11.5" r=".9" fill="#060A13"/></svg><span class="logo-txt">[НАЗВАНИЕ КОМПАНИИ]<small>инфраструктура ЦОД · B2B</small></span></a><nav class="nav" aria-label="Основное меню"><a data-nav href="catalog.html">Каталог</a><a data-nav href="catalog.html?category=servers">Серверы</a><a data-nav href="catalog.html?category=storage">СХД</a><a data-nav href="catalog.html?category=network">Сеть и оптика</a><a data-nav href="catalog.html?category=components">Комплектующие</a><a data-nav href="for-business.html">Для бизнеса</a><a data-nav href="rfq-spec.html">Запрос по ТЗ</a></nav><div class="hdr-cta"><button type="button" class="spec-btn" data-bom-btn aria-label="Черновик спецификации"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="2.5" width="13" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 7h7M6.5 10h7M6.5 13h4" stroke="currentColor" stroke-width="1.4"/></svg><span class="spec-l">Спецификация</span> (<span data-bom-count>0</span>)</button><a class="btn btn-cyan btn-sm hdr-kp" href="rfq.html">Запросить КП</a><button class="menu-btn" type="button" data-menu-toggle aria-expanded="false" aria-label="Меню"><span></span><span></span><span></span></button></div></div></header>
+<main id="main">
+<section class="page-head ph-sm"><div class="wrap"><nav class="crumbs mono"><a href="index.html">Главная</a> / <span>Запрос КП</span></nav>
+<h1>Запросить коммерческое предложение</h1><p class="lead">Укажите задачу, модель или партномер — подготовим расчёт для юридического лица.</p></div></section>
+<section class="light light-tight"><div class="wrap form-layout"><div class="form-card"><form class="lead-form" data-lead="rfq" id="rfq-form" action="#" method="post">
+<div class="prefill-chip" data-prefill-chip hidden></div><div class="form-grid"><div class="field"><label for="rfq-name">Имя *</label><input id="rfq-name" name="name" autocomplete="name" data-req></div>
+<div class="field"><label for="rfq-company">Компания *</label><input id="rfq-company" name="company" autocomplete="organization" data-req></div>
+<div class="field"><label for="rfq-phone">Телефон *</label><input id="rfq-phone" name="phone" type="tel" autocomplete="tel" placeholder="+7" data-req></div>
+<div class="field"><label for="rfq-email">Корпоративный email *</label><input id="rfq-email" name="email" type="email" autocomplete="email" data-req></div>
+<div class="field"><label for="rfq-city">Город *</label><input id="rfq-city" name="city" placeholder="Москва или любой город РФ" data-req></div>
+<div class="field"><label for="rfq-segment">Сегмент (необязательно)</label><select id="rfq-segment" name="segment"><option value="">Не выбрано</option><option value="integrator">Системный интегратор</option><option value="operator">Оператор связи / ЦОД</option></select></div>
+<div class="field full"><label for="rfq-need">Что нужно (модель, партномер, требования, желаемое состояние) *</label><textarea id="rfq-need" name="need" data-req placeholder="Например: 4× сервер 2U NVMe под виртуализацию, Seller Refurbished или новое, доставка в Казань"></textarea></div>
+<div class="field field-consent full"><label class="check"><input type="checkbox" name="pd_consent" value="yes" data-req><span>Я даю отдельное согласие на обработку персональных данных в соответствии с <a href="consent.html" target="_blank">Согласием на обработку ПДн</a> и <a href="privacy.html" target="_blank">Политикой обработки ПДн</a> (152-ФЗ / 156-ФЗ). Согласие не связано с офертой и рассылками.</span></label></div></div><input type="hidden" name="product_id"><input type="hidden" name="sku"><input type="hidden" name="title"><input type="hidden" name="condition"><input type="hidden" name="utm_source"><input type="hidden" name="utm_medium"><input type="hidden" name="utm_campaign"><input type="hidden" name="utm_content"><input type="hidden" name="utm_term"><input type="hidden" name="referrer"><input type="hidden" name="landing_page">
+<div class="form-actions"><button class="btn btn-primary btn-submit" type="submit">Отправить запрос на КП</button><span class="form-foot">Срок ответа не фиксируется в демо: регламент утверждает заказчик.</span></div>
+</form><div class="form-result" data-result hidden aria-live="polite"></div></div>
+<aside class="side-card"><span class="eyebrow">ПОРЯДОК</span><h3>Как обрабатываем запрос</h3><ol class="steps-mini"><li>Проверяем наличие и состояние каждой позиции.</li><li>Готовим КП с комплектацией, состоянием и индивидуальным сроком.</li><li>Договор поставки и безналичная оплата для юрлица.</li></ol>
+<p>Несколько позиций? Соберите <b>черновик спецификации</b> кнопкой «+ В ТЗ» в каталоге или <a href="rfq-spec.html">отправьте файл на расчёт →</a></p>
+<p class="muted">Цена в v1 — по запросу. Режим налогообложения и комплект документов фиксируются в договоре после выбора юрлица.</p></aside></div></section>
+</main>
+<footer class="site-footer"><div class="wrap ftr">
+<div class="ftr-col"><a class="logo" href="index.html"><svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 9v14l-12 7L4 23V9z" fill="none" stroke="#38BDF8" stroke-width="1.6"/><rect x="10" y="10" width="12" height="3" rx=".6" fill="#38BDF8"/><rect x="10" y="14.5" width="12" height="3" rx=".6" fill="#0284C7"/><rect x="10" y="19" width="12" height="3" rx=".6" fill="#1E3A5F"/><circle cx="20.2" cy="11.5" r=".9" fill="#060A13"/></svg><span class="logo-txt">[НАЗВАНИЕ КОМПАНИИ]<small>инфраструктура ЦОД · B2B</small></span></a>
+<p>Серверы, СХД, сеть ЦОД и ЗИП по партномерам и проектным ТЗ. Москва, поставки по всей России. Только для юридических лиц, без розницы.</p>
+<div class="slot-box"><span class="slot-label">Слот проверки заказчика</span>[Реквизиты: ИНН / ОГРН / юрадрес · режим налогообложения (ОСНО/НДС) — заполняются после проверки]</div></div>
+<div class="ftr-col"><b>Каталог</b><a href="catalog.html?category=servers">Серверы</a><a href="catalog.html?category=storage">СХД</a><a href="catalog.html?category=network">Сеть и оптика</a><a href="catalog.html?category=components">Комплектующие и ЗИП</a></div>
+<div class="ftr-col"><b>Работа с нами</b><a href="for-business.html">Для бизнеса</a><a href="rfq.html">Запросить КП</a><a href="rfq-spec.html">Запрос по спецификации / ТЗ</a><a href="for-business.html#contacts">О компании и контакты</a></div>
+<div class="ftr-col"><b>Документы</b><a href="privacy.html">Политика обработки ПДн</a><a href="consent.html">Согласие на обработку ПДн</a></div>
+</div><div class="wrap ftr-note"><p>Наименования производителей указаны исключительно для обозначения поставляемого оборудования и совместимых комплектующих. Компания не является официальным партнёром или дистрибьютором перечисленных производителей, если иное не подтверждено действующим сертификатом.</p><p>Демо-пример каталога — SKU и статусы наличия демонстрационные (для макета), без реальных остатков и реквизитов. Финальные SKU и наличие заполняются из прайса заказчика.</p></div></footer>
+<section class="bom" id="bom" hidden aria-label="Черновик спецификации (BOM)">
+<div class="wrap bom-bar"><button type="button" class="bom-toggle" data-bom-toggle aria-expanded="false" aria-controls="bom-list">
+<span class="bom-ico" aria-hidden="true"></span><span class="bom-t">Черновик спецификации (BOM)</span><span class="bom-sum mono" data-bom-sum></span><span class="bom-chev" aria-hidden="true"></span></button>
+<span class="bom-note">Демо: хранится только в этом браузере · без цен</span>
+<button type="button" class="bom-clear" data-bom-clear>Очистить</button>
+<a class="btn btn-cyan btn-sm" data-bom-go href="rfq-spec.html?from=bom">Передать в расчёт ТЗ →</a></div>
+<div class="wrap bom-body"><div class="bom-head mono"><span>SKU</span><span>Модель</span><span>Состояние</span><span>Кол-во</span><span></span></div><ul id="bom-list" class="bom-list" data-bom-list></ul></div>
+</section>
+<script src="assets/data.js"></script>
+<script src="assets/core.js"></script>
+</body>
+</html>
